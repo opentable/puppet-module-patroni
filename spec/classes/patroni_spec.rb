@@ -303,6 +303,23 @@ describe 'patroni' do
         end
       end
 
+      context 'is_standby => true' do
+        let(:params) { { 'scope' => 'testscope', 'is_standby' => true } }
+
+        it 'has valid config' do
+          content = catalogue.resource('file', 'patroni_config').send(:parameters)[:content]
+          config = YAML.safe_load(content)
+          expected = {
+            'standby_cluster' => {
+              'host' => '127.0.0.1',
+              'port' => '5432',
+              'primary_slot_name' => 'patroni',
+            },
+          }
+          expect(config).to include(expected)
+        end
+      end
+
       context 'manage_postgresql => false' do
         let(:params) { { 'scope' => 'testscope', 'manage_postgresql' => false } }
 
