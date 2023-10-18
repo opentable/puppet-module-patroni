@@ -234,7 +234,6 @@
 #   Patroni service ensure property
 # @param service_enable
 #   Patroni service enable property
-#
 # @param is_standby
 #   Boolean to use Standby cluster
 # @param standby_cluster_host
@@ -243,6 +242,11 @@
 #   Refer to Standby configuration `port` setting
 # @param standby_cluster_primary_slot_name
 #   Refer to Standby configuration `slot` setting
+# @param  tags
+#   Boolean to use tag feature of patroni
+# @param tags_parameters
+#   Refer to `tags` setting
+#
 
 class patroni (
 
@@ -371,6 +375,10 @@ class patroni (
   Enum['off','automatic','required'] $watchdog_mode = 'automatic',
   String $watchdog_device = '/dev/watchdog',
   Integer $watchdog_safety_margin = 5,
+
+  # Tags settings
+  Boolean $tags = false,
+  Hash $tags_parameters = {},
 
   # Module Specific Settings
   Boolean $manage_postgresql = true,
