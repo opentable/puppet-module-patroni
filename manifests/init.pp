@@ -242,7 +242,7 @@
 #   Refer to Standby configuration `port` setting
 # @param standby_cluster_primary_slot_name
 #   Refer to Standby configuration `slot` setting
-# @param  tags
+# @param tags
 #   Boolean to use tag feature of patroni
 # @param tags_parameters
 #   Refer to `tags` setting
@@ -391,6 +391,7 @@ class patroni (
   Stdlib::Absolutepath $install_dir = '/opt/app/patroni',
   String $python_class_version = '36',
   String $python_venv_version = '3.6',
+  String $python_pip_version = 'latest',
   String $config_path = '/opt/app/patroni/etc/postgresql.yml',
   String $config_owner = 'postgres',
   String $config_group = 'postgres',
@@ -458,6 +459,7 @@ class patroni (
     if $facts['os']['family'] == 'Debian' {
       python::pyvenv { 'patroni':
         version     => $python_venv_version,
+        pip_version => $python_pip_version,
         venv_dir    => $install_dir,
         systempkgs  => true,
         environment => ["PIP_PREFIX=${install_dir}"],
