@@ -387,6 +387,7 @@ class patroni (
   String $version = 'present',
   Array $install_dependencies = [],
   Boolean $manage_python = true,
+  Boolean $manage_pip_package = false,
   Enum['package','pip'] $install_method = 'pip',
   Stdlib::Absolutepath $install_dir = '/opt/app/patroni',
   String $python_class_version = '36',
@@ -433,6 +434,14 @@ class patroni (
   $_pgsql_bin_dir = pick($pgsql_bin_dir, $default_bin_dir)
 
   if $install_method == 'pip' {
+    # control pip pkg management by python module
+    $python::params::manage_pip_package = $manage_pip_package
+    if $manage_pip_package == false {
+      python::pip { 'pip'
+        ensure => '24.0',
+      }
+    }
+
     if $manage_python {
       class { 'python':
         version    => $python_class_version,
@@ -459,7 +468,7 @@ class patroni (
     if $facts['os']['family'] == 'Debian' {
       python::pyvenv { 'patroni':
         version     => $python_venv_version,
-        pip_version => $python_pip_version,
+#        pip_version => $python_pip_version,
         venv_dir    => $install_dir,
         systempkgs  => true,
         environment => ["PIP_PREFIX=${install_dir}"],
