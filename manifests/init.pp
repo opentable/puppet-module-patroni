@@ -439,6 +439,7 @@ class patroni (
     if $manage_pip_package == false {
       python::pip { 'pip'
         ensure => '24.0',
+        environment => ["PIP_PREFIX=${install_dir}"],
       }
     }
 
