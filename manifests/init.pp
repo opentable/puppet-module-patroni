@@ -434,19 +434,12 @@ class patroni (
   $_pgsql_bin_dir = pick($pgsql_bin_dir, $default_bin_dir)
 
   if $install_method == 'pip' {
-    # control pip pkg management by python module
-    if $manage_pip_package == false {
-      python::pip { 'pip':
-        ensure => '24.0',
-        environment => ["PIP_PREFIX=${install_dir}"],
-      }
-    }
-
     if $manage_python {
       class { 'python':
-        version    => $python_class_version,
-        dev        => 'present',
-        virtualenv => 'present',
+        version            => $python_class_version,
+        dev                => 'present',
+        virtualenv         => 'present',
+        manage_pip_package => $manage_pip_package,
       }
     }
     ensure_packages($install_dependencies, {'before' => Python::Pip['patroni']})
@@ -465,6 +458,15 @@ class patroni (
         require     => Exec['patroni-mkdir-install_dir'],
       }
     }
+
+    # control pip pkg management by python module
+    if $manage_pip_package == false {
+      python::pip { 'pip':
+        ensure => '24.0',
+        environment => ["PIP_PREFIX=${install_dir}"],
+      }
+    }
+
     if $facts['os']['family'] == 'Debian' {
       python::pyvenv { 'patroni':
         version     => $python_venv_version,
