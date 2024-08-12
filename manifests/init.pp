@@ -435,9 +435,8 @@ class patroni (
 
   if $install_method == 'pip' {
     # control pip pkg management by python module
-    $python::params::manage_pip_package = $manage_pip_package
     if $manage_pip_package == false {
-      python::pip { 'pip'
+      python::pip { 'pip':
         ensure => '24.0',
         environment => ["PIP_PREFIX=${install_dir}"],
       }
@@ -469,7 +468,6 @@ class patroni (
     if $facts['os']['family'] == 'Debian' {
       python::pyvenv { 'patroni':
         version     => $python_venv_version,
-#        pip_version => $python_pip_version,
         venv_dir    => $install_dir,
         systempkgs  => true,
         environment => ["PIP_PREFIX=${install_dir}"],
