@@ -388,6 +388,7 @@ class patroni (
   Array $install_dependencies = [],
   Boolean $manage_python = true,
   Enum['package','pip'] $install_method = 'pip',
+  String $pip_version = '24.0',
   Stdlib::Absolutepath $install_dir = '/opt/app/patroni',
   String $python_class_version = '36',
   String $python_venv_version = '3.6',
@@ -459,6 +460,7 @@ class patroni (
       python::pyvenv { 'patroni':
         version     => $python_venv_version,
         venv_dir    => $install_dir,
+        pip_version => $pip_version,
         systempkgs  => true,
         environment => ["PIP_PREFIX=${install_dir}"],
         require     => Exec['patroni-mkdir-install_dir'],
