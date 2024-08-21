@@ -440,6 +440,7 @@ class patroni (
         dev                => 'present',
         virtualenv         => 'present',
         manage_pip_package => $manage_pip_package,
+        provider           => 'pip',
       }
     }
     ensure_packages($install_dependencies, {'before' => Python::Pip['patroni']})
