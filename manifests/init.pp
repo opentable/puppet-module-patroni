@@ -456,12 +456,34 @@ class patroni (
       }
     }
     if $facts['os']['family'] == 'Debian' {
-      python::pyvenv { 'patroni':
-        version     => $python_venv_version,
-        venv_dir    => $install_dir,
-        systempkgs  => true,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
+      # create python virtual env without using the python::pyvenv
+      # python::pyvenv upgrades pip and setuptools which leads to failure installing cdiff and ydiff
+
+      #python::pyvenv { 'patroni':
+      #  version     => $python_venv_version,
+      #  venv_dir    => $install_dir,
+      #  systempkgs  => true,
+      #  environment => ["PIP_PREFIX=${install_dir}"],
+      #  require     => Exec['patroni-mkdir-install_dir'],
+      #}
+
+      $python_version_parts = split($facts['python3_version'], '[.]')
+      $python_version = sprintf('%s.%s', $python_version_parts[0], $python_version_parts[1])
+
+      # pyvenv is deprecated since 3.6 and will be removed in 3.8
+      if (versioncmp($python_version, '3.6') >=0) {
+        $virtualenv_cmd = "python${python_version} -m venv"
+      } else {
+        $virtualenv_cmd = "pyvenv-${python_version}"
+      }
+
+      # create python venv for patroni
+      # unless activate exists and VIRTUAL_ENV is correct we re-create the virtualenv
+      exec { 'patroni_custom_pyvenv':
+        command => "${virtualenv_cmd} --clear --system-site-packages ${install_dir}",
+        creates => "${install_dir}/bin/activate",
+        path    => ['/bin', '/usr/bin', '/usr/sbin', '/usr/local/bin'],
+        unless  => "grep '^[\\t]*VIRTUAL_ENV=[\\\\'\\\"]*${install_dir}[\\\"\\\\'][\\t ]*$' ${install_dir}/bin/activate",
       }
     }
     python::pip { 'patroni':
