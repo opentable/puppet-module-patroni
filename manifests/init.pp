@@ -94,6 +94,8 @@
 #   Refer to PostgreSQL configuration settings `remove_data_directory_on_rewind_failure` setting
 # @param pgsql_replica_method
 #   Refer to PostgreSQL configuration settings `replica_method` setting
+# @param manage_postgresql_repo
+#   Should the postgresql module manage the package repo
 # @param use_consul
 #   Boolean to use Consul for configuration storage
 # @param consul_host
@@ -172,6 +174,8 @@
 #   Refer to Kubernetes configuration `pod_ip` setting
 # @param kubernetes_ports
 #   Refer to Kubernetes configuration `ports` setting
+# @param restapi_ciphers
+#   Refer to REST API configuration `ciphers` setting
 # @param restapi_connect_address
 #   Refer to REST API configuration `connect_address` setting
 # @param restapi_listen
@@ -220,6 +224,8 @@
 # @param python_venv_version
 #   The  version of Python to pass to Python virtualenv defined type
 #   Only used when `install_method` is `pip`
+# @param manage_venv_package
+#   Whether to manage the Python venv package
 # @param config_path
 #   Path to Patroni configuration file
 # @param config_owner
@@ -234,6 +240,8 @@
 #   Patroni service ensure property
 # @param service_enable
 #   Patroni service enable property
+# @param custom_pip_provider
+#   Use custom pip path when installing pip packages
 # @param is_standby
 #   Boolean to use Standby cluster
 # @param standby_cluster_host
@@ -242,17 +250,11 @@
 #   Refer to Standby configuration `port` setting
 # @param standby_cluster_primary_slot_name
 #   Refer to Standby configuration `slot` setting
-# @param  tags
-#   Boolean to use tag feature of patroni
-# @param tags_parameters
-#   Refer to `tags` setting
-#
-
 class patroni (
 
   # Global Settings
-  String $scope,
-  String $namespace = '/service/',
+  String[1] $scope,
+  String[1] $namespace = '/service/',
   String $hostname = $facts['networking']['hostname'],
 
   # Bootstrap Settings
@@ -281,7 +283,7 @@ class patroni (
   Boolean $is_standby = false,
   String $standby_cluster_host = '127.0.0.1',
   Stdlib::Port $standby_cluster_port = 5432,
-  Optional[String] $standby_cluster_primary_slot_name = 'patroni',
+  String[1] $standby_cluster_primary_slot_name = 'patroni',
 
   # PostgreSQL Settings
   String $superuser_username = 'postgres',
@@ -309,6 +311,7 @@ class patroni (
   Boolean $pgsql_use_pg_rewind = true,
   Boolean $pgsql_remove_data_directory_on_rewind_failure = false,
   Array[Hash] $pgsql_replica_method = [],
+  Boolean $manage_postgresql_repo = true,
 
   # Consul Settings
   Boolean $use_consul = false,
@@ -358,6 +361,7 @@ class patroni (
   Variant[Undef,String] $kubernetes_ports = undef,
 
   # REST API Settings
+  Optional[String] $restapi_ciphers = undef,
   String $restapi_connect_address = "${facts['networking']['fqdn']}:8008",
   String $restapi_listen = '0.0.0.0:8008',
   Variant[Undef,String] $restapi_username = undef,
@@ -369,11 +373,11 @@ class patroni (
 
   # ZooKeeper Settings
   Boolean $use_zookeeper = false,
-  Array[String] $zookeeper_hosts = [],
+  Array[String[1]] $zookeeper_hosts = [],
 
   # Watchdog Settings
   Enum['off','automatic','required'] $watchdog_mode = 'automatic',
-  String $watchdog_device = '/dev/watchdog',
+  Stdlib::Absolutepath $watchdog_device = '/dev/watchdog',
   Integer $watchdog_safety_margin = 5,
 
   # Tags settings
@@ -382,40 +386,68 @@ class patroni (
 
   # Module Specific Settings
   Boolean $manage_postgresql = true,
-  Optional[String] $postgresql_version = undef,
-  String $package_name = 'patroni',
-  String $version = 'present',
-  Array $install_dependencies = [],
+  Optional[String[1]] $postgresql_version = undef,
+  String[1] $package_name = 'patroni',
+  String[1] $version = 'present',
+  Array[String[1]] $install_dependencies = [],
   Boolean $manage_python = true,
   Enum['package','pip'] $install_method = 'pip',
   Stdlib::Absolutepath $install_dir = '/opt/app/patroni',
-  String $python_class_version = '36',
-  String $python_venv_version = '3.6',
-  String $config_path = '/opt/app/patroni/etc/postgresql.yml',
-  String $config_owner = 'postgres',
-  String $config_group = 'postgres',
-  String $config_mode = '0600',
-  String $service_name = 'patroni',
-  String $service_ensure = 'running',
+  String[1] $python_class_version = '36',
+  String[1] $python_venv_version = '3.6',
+  Boolean $manage_venv_package = true,
+  Stdlib::Absolutepath $config_path = '/opt/app/patroni/etc/postgresql.yml',
+  String[1] $config_owner = 'postgres',
+  String[1] $config_group = 'postgres',
+  Stdlib::Filemode $config_mode = '0600',
+  String[1] $service_name = 'patroni',
+  Enum['running', 'stopped'] $service_ensure = 'running',
   Boolean $service_enable = true,
+  Optional[String[1]] $custom_pip_provider = undef,
 ) {
-
   if $manage_postgresql {
     class { 'postgresql::globals':
       encoding            => 'UTF-8',
       locale              => 'en_US.UTF-8',
-      manage_package_repo => true,
+      manage_package_repo => $manage_postgresql_repo,
       version             => $postgresql_version,
     }
+
     include postgresql::params
+
     $default_data_dir = $postgresql::params::datadir
     $default_bin_dir = $postgresql::params::bindir
+
+    if $manage_postgresql_repo == true {
+      $postgres_repo_require = 'Class[Postgresql::Repo]'
+    } else {
+      $postgres_repo_require = undef
+    }
+
     package { 'patroni-postgresql-package':
       ensure  => present,
       name    => $postgresql::params::server_package_name,
-      require => Class['postgresql::repo'],
+      require => $postgres_repo_require,
       before  => Service['patroni'],
     }
+
+    package { 'patroni-postgresql-devel-package':
+      ensure  => present,
+      name    => $postgresql::params::devel_package_name,
+      require => $postgres_repo_require,
+      before  => Service['patroni'],
+    }
+    if $install_method == 'pip' {
+      Package['patroni-postgresql-devel-package'] -> Python::Pip['psycopg2']
+    }
+
+    if $facts['os']['family'] == 'RedHat' and $manage_postgresql_repo and $default_bin_dir != '/usr/bin' {
+      file { '/usr/bin/pg_config':
+        ensure => 'link',
+        target => "${default_bin_dir}/pg_config",
+      }
+    }
+
     exec { 'patroni-clear-datadir':
       path        => '/usr/bin:/bin',
       command     => "/bin/rm -rf ${default_data_dir}",
@@ -434,76 +466,59 @@ class patroni (
   if $install_method == 'pip' {
     if $manage_python {
       class { 'python':
-        version    => $python_class_version,
-        dev        => 'present',
-        virtualenv => 'present',
+        version             => $python_class_version,
+        dev                 => 'present',
+        venv                => 'present',
+        manage_venv_package => $manage_venv_package,
       }
     }
-    ensure_packages($install_dependencies, {'before' => Python::Pip['patroni']})
+
+    ensure_packages($install_dependencies, { 'before' => Python::Pip['patroni'] })
+
     exec { 'patroni-mkdir-install_dir':
       command => "/bin/mkdir -p ${install_dir}",
       creates => $install_dir,
     }
-    if $facts['os']['family'] == 'RedHat' {
-      python::virtualenv { 'patroni':
-        version     => $python_venv_version,
-        venv_dir    => $install_dir,
-        virtualenv  => 'virtualenv-3',
-        systempkgs  => true,
-        distribute  => false,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
-      }
-    }
-    if $facts['os']['family'] == 'Debian' {
-      # create python virtual env without using the python::pyvenv
-      # python::pyvenv upgrades pip and setuptools which leads to failure installing cdiff and ydiff
 
-      #python::pyvenv { 'patroni':
-      #  version     => $python_venv_version,
-      #  venv_dir    => $install_dir,
-      #  systempkgs  => true,
-      #  environment => ["PIP_PREFIX=${install_dir}"],
-      #  require     => Exec['patroni-mkdir-install_dir'],
-      #}
-
-      $python_version_parts = split($facts['python3_version'], '[.]')
-      $python_version = sprintf('%s.%s', $python_version_parts[0], $python_version_parts[1])
-
-      # pyvenv is deprecated since 3.6 and will be removed in 3.8
-      if (versioncmp($python_version, '3.6') >=0) {
-        $virtualenv_cmd = "python${python_version} -m venv"
-      } else {
-        $virtualenv_cmd = "pyvenv-${python_version}"
-      }
-
-      # create python venv for patroni
-      # unless activate exists and VIRTUAL_ENV is correct we re-create the virtualenv
-      exec { 'patroni_custom_pyvenv':
-        command => "${virtualenv_cmd} --clear --system-site-packages ${install_dir}",
-        creates => "${install_dir}/bin/activate",
-        path    => ['/bin', '/usr/bin', '/usr/sbin', '/usr/local/bin'],
-        unless  => "grep '^[\\t]*VIRTUAL_ENV=[\\\\'\\\"]*${install_dir}[\\\"\\\\'][\\t ]*$' ${install_dir}/bin/activate",
-      }
-    }
-    python::pip { 'patroni':
-      ensure      => $version,
-      virtualenv  => $install_dir,
+    python::pyvenv { 'patroni':
+      version     => $python_venv_version,
+      venv_dir    => $install_dir,
+      systempkgs  => true,
       environment => ["PIP_PREFIX=${install_dir}"],
-      before      => File['patroni_config'],
+      require     => Exec['patroni-mkdir-install_dir'],
     }
+
+    if $custom_pip_provider {
+      $virtualenv = undef
+    } else {
+      $virtualenv = $install_dir
+    }
+
+    python::pip { 'patroni':
+      ensure       => $version,
+      environment  => ["PIP_PREFIX=${install_dir}"],
+      pip_provider => $custom_pip_provider,
+      virtualenv   => $virtualenv,
+      before       => File['patroni_config'],
+    }
+
     $dependency_params = {
-      'virtualenv'  => $install_dir,
-      'before'      => Python::Pip['patroni'],
-      'environment' => ["PIP_PREFIX=${install_dir}"],
+      'before'       => Python::Pip['patroni'],
+      'pip_provider' => $custom_pip_provider,
+      'virtualenv'   => $virtualenv,
+      'environment'  => ["PIP_PREFIX=${install_dir}"],
     }
+
     python::pip { 'psycopg2': * => $dependency_params }
+
     if $use_consul {
       python::pip { 'python-consul': * => $dependency_params }
     }
+
     if $use_etcd {
       python::pip { 'python-etcd': * => $dependency_params }
     }
+
     if $use_exhibitor or $use_zookeeper {
       python::pip { 'kazoo': * => $dependency_params }
     }
@@ -518,13 +533,15 @@ class patroni (
   if $install_method == 'pip' {
     $config_dir = dirname($config_path)
     file { 'patroni_config_dir':
-      ensure => 'directory',
-      path   => $config_dir,
-      owner  => 'postgres',
-      group  => 'postgres',
-      mode   => '0755',
+      ensure  => 'directory',
+      path    => $config_dir,
+      owner   => 'postgres',
+      group   => 'postgres',
+      mode    => '0755',
+      require => Python::Pyvenv['patroni'],
     }
   }
+
   file { 'patroni_config':
     ensure  => 'file',
     path    => $config_path,
@@ -552,5 +569,11 @@ class patroni (
     ensure => $service_ensure,
     name   => $service_name,
     enable => $service_enable,
+  }
+
+  $patronictl = "${install_dir}/bin/patronictl"
+  patronictl_config { 'puppet':
+    path   => $patronictl,
+    config => $config_path,
   }
 }

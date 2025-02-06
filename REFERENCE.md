@@ -8,31 +8,161 @@
 
 * [`patroni`](#patroni): Manages a Patroni instance
 
+### Resource types
+
+* [`patroni_dcs_config`](#patroni_dcs_config): Manages Patroni DCS configuration options
+* [`patronictl_config`](#patronictl_config): Abstract type to configure other types
+
 ## Classes
 
-### `patroni`
+### <a name="patroni"></a>`patroni`
 
 Manages a Patroni instance
 
 #### Parameters
 
-The following parameters are available in the `patroni` class.
+The following parameters are available in the `patroni` class:
 
-##### `scope`
+* [`scope`](#-patroni--scope)
+* [`namespace`](#-patroni--namespace)
+* [`hostname`](#-patroni--hostname)
+* [`dcs_loop_wait`](#-patroni--dcs_loop_wait)
+* [`dcs_ttl`](#-patroni--dcs_ttl)
+* [`dcs_retry_timeout`](#-patroni--dcs_retry_timeout)
+* [`dcs_maximum_lag_on_failover`](#-patroni--dcs_maximum_lag_on_failover)
+* [`dcs_master_start_timeout`](#-patroni--dcs_master_start_timeout)
+* [`dcs_synchronous_mode`](#-patroni--dcs_synchronous_mode)
+* [`dcs_synchronous_mode_strict`](#-patroni--dcs_synchronous_mode_strict)
+* [`dcs_postgresql_use_pg_rewind`](#-patroni--dcs_postgresql_use_pg_rewind)
+* [`dcs_postgresql_use_slots`](#-patroni--dcs_postgresql_use_slots)
+* [`dcs_postgresql_recovery_conf`](#-patroni--dcs_postgresql_recovery_conf)
+* [`dcs_postgresql_parameters`](#-patroni--dcs_postgresql_parameters)
+* [`bootstrap_method`](#-patroni--bootstrap_method)
+* [`initdb_data_checksums`](#-patroni--initdb_data_checksums)
+* [`initdb_encoding`](#-patroni--initdb_encoding)
+* [`initdb_locale`](#-patroni--initdb_locale)
+* [`bootstrap_pg_hba`](#-patroni--bootstrap_pg_hba)
+* [`bootstrap_users`](#-patroni--bootstrap_users)
+* [`bootstrap_post_bootstrap`](#-patroni--bootstrap_post_bootstrap)
+* [`bootstrap_post_init`](#-patroni--bootstrap_post_init)
+* [`superuser_username`](#-patroni--superuser_username)
+* [`superuser_password`](#-patroni--superuser_password)
+* [`replication_username`](#-patroni--replication_username)
+* [`replication_password`](#-patroni--replication_password)
+* [`callback_on_reload`](#-patroni--callback_on_reload)
+* [`callback_on_restart`](#-patroni--callback_on_restart)
+* [`callback_on_role_change`](#-patroni--callback_on_role_change)
+* [`callback_on_start`](#-patroni--callback_on_start)
+* [`callback_on_stop`](#-patroni--callback_on_stop)
+* [`pgsql_connect_address`](#-patroni--pgsql_connect_address)
+* [`pgsql_create_replica_methods`](#-patroni--pgsql_create_replica_methods)
+* [`pgsql_data_dir`](#-patroni--pgsql_data_dir)
+* [`pgsql_config_dir`](#-patroni--pgsql_config_dir)
+* [`pgsql_bin_dir`](#-patroni--pgsql_bin_dir)
+* [`pgsql_listen`](#-patroni--pgsql_listen)
+* [`pgsql_use_unix_socket`](#-patroni--pgsql_use_unix_socket)
+* [`pgsql_pgpass_path`](#-patroni--pgsql_pgpass_path)
+* [`pgsql_recovery_conf`](#-patroni--pgsql_recovery_conf)
+* [`pgsql_custom_conf`](#-patroni--pgsql_custom_conf)
+* [`pgsql_parameters`](#-patroni--pgsql_parameters)
+* [`pgsql_pg_hba`](#-patroni--pgsql_pg_hba)
+* [`pgsql_pg_ctl_timeout`](#-patroni--pgsql_pg_ctl_timeout)
+* [`pgsql_use_pg_rewind`](#-patroni--pgsql_use_pg_rewind)
+* [`pgsql_remove_data_directory_on_rewind_failure`](#-patroni--pgsql_remove_data_directory_on_rewind_failure)
+* [`pgsql_replica_method`](#-patroni--pgsql_replica_method)
+* [`manage_postgresql_repo`](#-patroni--manage_postgresql_repo)
+* [`use_consul`](#-patroni--use_consul)
+* [`consul_host`](#-patroni--consul_host)
+* [`consul_url`](#-patroni--consul_url)
+* [`consul_port`](#-patroni--consul_port)
+* [`consul_scheme`](#-patroni--consul_scheme)
+* [`consul_token`](#-patroni--consul_token)
+* [`consul_verify`](#-patroni--consul_verify)
+* [`consul_register_service`](#-patroni--consul_register_service)
+* [`consul_service_check_interval`](#-patroni--consul_service_check_interval)
+* [`consul_consistency`](#-patroni--consul_consistency)
+* [`consul_cacert`](#-patroni--consul_cacert)
+* [`consul_cert`](#-patroni--consul_cert)
+* [`consul_key`](#-patroni--consul_key)
+* [`consul_dc`](#-patroni--consul_dc)
+* [`consul_checks`](#-patroni--consul_checks)
+* [`use_etcd`](#-patroni--use_etcd)
+* [`etcd_host`](#-patroni--etcd_host)
+* [`etcd_hosts`](#-patroni--etcd_hosts)
+* [`etcd_url`](#-patroni--etcd_url)
+* [`etcd_proxyurl`](#-patroni--etcd_proxyurl)
+* [`etcd_srv`](#-patroni--etcd_srv)
+* [`etcd_protocol`](#-patroni--etcd_protocol)
+* [`etcd_username`](#-patroni--etcd_username)
+* [`etcd_password`](#-patroni--etcd_password)
+* [`etcd_cacert`](#-patroni--etcd_cacert)
+* [`etcd_cert`](#-patroni--etcd_cert)
+* [`etcd_key`](#-patroni--etcd_key)
+* [`use_exhibitor`](#-patroni--use_exhibitor)
+* [`exhibitor_hosts`](#-patroni--exhibitor_hosts)
+* [`exhibitor_poll_interval`](#-patroni--exhibitor_poll_interval)
+* [`exhibitor_port`](#-patroni--exhibitor_port)
+* [`use_kubernetes`](#-patroni--use_kubernetes)
+* [`kubernetes_namespace`](#-patroni--kubernetes_namespace)
+* [`kubernetes_labels`](#-patroni--kubernetes_labels)
+* [`kubernetes_scope_label`](#-patroni--kubernetes_scope_label)
+* [`kubernetes_role_label`](#-patroni--kubernetes_role_label)
+* [`kubernetes_use_endpoints`](#-patroni--kubernetes_use_endpoints)
+* [`kubernetes_pod_ip`](#-patroni--kubernetes_pod_ip)
+* [`kubernetes_ports`](#-patroni--kubernetes_ports)
+* [`restapi_ciphers`](#-patroni--restapi_ciphers)
+* [`restapi_connect_address`](#-patroni--restapi_connect_address)
+* [`restapi_listen`](#-patroni--restapi_listen)
+* [`restapi_username`](#-patroni--restapi_username)
+* [`restapi_password`](#-patroni--restapi_password)
+* [`restapi_certfile`](#-patroni--restapi_certfile)
+* [`restapi_keyfile`](#-patroni--restapi_keyfile)
+* [`restapi_cafile`](#-patroni--restapi_cafile)
+* [`restapi_verify_client`](#-patroni--restapi_verify_client)
+* [`use_zookeeper`](#-patroni--use_zookeeper)
+* [`zookeeper_hosts`](#-patroni--zookeeper_hosts)
+* [`watchdog_mode`](#-patroni--watchdog_mode)
+* [`watchdog_device`](#-patroni--watchdog_device)
+* [`watchdog_safety_margin`](#-patroni--watchdog_safety_margin)
+* [`manage_postgresql`](#-patroni--manage_postgresql)
+* [`postgresql_version`](#-patroni--postgresql_version)
+* [`package_name`](#-patroni--package_name)
+* [`version`](#-patroni--version)
+* [`install_dependencies`](#-patroni--install_dependencies)
+* [`manage_python`](#-patroni--manage_python)
+* [`install_method`](#-patroni--install_method)
+* [`install_dir`](#-patroni--install_dir)
+* [`python_class_version`](#-patroni--python_class_version)
+* [`python_venv_version`](#-patroni--python_venv_version)
+* [`manage_venv_package`](#-patroni--manage_venv_package)
+* [`config_path`](#-patroni--config_path)
+* [`config_owner`](#-patroni--config_owner)
+* [`config_group`](#-patroni--config_group)
+* [`config_mode`](#-patroni--config_mode)
+* [`service_name`](#-patroni--service_name)
+* [`service_ensure`](#-patroni--service_ensure)
+* [`service_enable`](#-patroni--service_enable)
+* [`custom_pip_provider`](#-patroni--custom_pip_provider)
+* [`is_standby`](#-patroni--is_standby)
+* [`standby_cluster_host`](#-patroni--standby_cluster_host)
+* [`standby_cluster_port`](#-patroni--standby_cluster_port)
+* [`standby_cluster_primary_slot_name`](#-patroni--standby_cluster_primary_slot_name)
 
-Data type: `String`
+##### <a name="-patroni--scope"></a>`scope`
+
+Data type: `String[1]`
 
 Refer to Patroni Global `scope` setting
 
-##### `namespace`
+##### <a name="-patroni--namespace"></a>`namespace`
 
-Data type: `String`
+Data type: `String[1]`
 
 Refer to Patroni Global `namespace` setting
 
 Default value: `'/service/'`
 
-##### `hostname`
+##### <a name="-patroni--hostname"></a>`hostname`
 
 Data type: `String`
 
@@ -40,7 +170,7 @@ Refer to Patroni Global `name` setting
 
 Default value: `$facts['networking']['hostname']`
 
-##### `dcs_loop_wait`
+##### <a name="-patroni--dcs_loop_wait"></a>`dcs_loop_wait`
 
 Data type: `Integer`
 
@@ -48,7 +178,7 @@ Refer to Patroni Dynamic Configuration Settings `loop_wait` setting
 
 Default value: `10`
 
-##### `dcs_ttl`
+##### <a name="-patroni--dcs_ttl"></a>`dcs_ttl`
 
 Data type: `Integer`
 
@@ -56,7 +186,7 @@ Refer to Patroni Dynamic Configuration Settings `ttl` setting
 
 Default value: `30`
 
-##### `dcs_retry_timeout`
+##### <a name="-patroni--dcs_retry_timeout"></a>`dcs_retry_timeout`
 
 Data type: `Integer`
 
@@ -64,7 +194,7 @@ Refer to Patroni Dynamic Configuration Settings `retry_timeout` setting
 
 Default value: `10`
 
-##### `dcs_maximum_lag_on_failover`
+##### <a name="-patroni--dcs_maximum_lag_on_failover"></a>`dcs_maximum_lag_on_failover`
 
 Data type: `Integer`
 
@@ -72,7 +202,7 @@ Refer to Patroni Dynamic Configuration Settings `maximum_lag_on_failover` settin
 
 Default value: `1048576`
 
-##### `dcs_master_start_timeout`
+##### <a name="-patroni--dcs_master_start_timeout"></a>`dcs_master_start_timeout`
 
 Data type: `Integer`
 
@@ -80,39 +210,39 @@ Refer to Patroni Dynamic Configuration Settings `master_start_timeout` setting
 
 Default value: `300`
 
-##### `dcs_synchronous_mode`
+##### <a name="-patroni--dcs_synchronous_mode"></a>`dcs_synchronous_mode`
 
 Data type: `Boolean`
 
 Refer to Patroni Dynamic Configuration Settings `synchronous_mode` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `dcs_synchronous_mode_strict`
+##### <a name="-patroni--dcs_synchronous_mode_strict"></a>`dcs_synchronous_mode_strict`
 
 Data type: `Boolean`
 
 Refer to Patroni Dynamic Configuration Settings `synchronous_mode_strict` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `dcs_postgresql_use_pg_rewind`
+##### <a name="-patroni--dcs_postgresql_use_pg_rewind"></a>`dcs_postgresql_use_pg_rewind`
 
 Data type: `Boolean`
 
 Refer to Patroni Dynamic Configuration Settings `postgresql_use_pg_rewind` setting
 
-Default value: ``true``
+Default value: `true`
 
-##### `dcs_postgresql_use_slots`
+##### <a name="-patroni--dcs_postgresql_use_slots"></a>`dcs_postgresql_use_slots`
 
 Data type: `Boolean`
 
 Refer to Patroni Dynamic Configuration Settings `postgresql_use_slots` setting
 
-Default value: ``true``
+Default value: `true`
 
-##### `dcs_postgresql_recovery_conf`
+##### <a name="-patroni--dcs_postgresql_recovery_conf"></a>`dcs_postgresql_recovery_conf`
 
 Data type: `Hash`
 
@@ -120,7 +250,7 @@ Refer to Patroni Dynamic Configuration Settings `postgresql_recovery_conf` setti
 
 Default value: `{}`
 
-##### `dcs_postgresql_parameters`
+##### <a name="-patroni--dcs_postgresql_parameters"></a>`dcs_postgresql_parameters`
 
 Data type: `Hash`
 
@@ -128,7 +258,7 @@ Refer to Patroni Dynamic Configuration Settings `postgresql_parameters` setting
 
 Default value: `{}`
 
-##### `bootstrap_method`
+##### <a name="-patroni--bootstrap_method"></a>`bootstrap_method`
 
 Data type: `String[1]`
 
@@ -136,15 +266,15 @@ Refer to Bootstrap configuration settings `method` setting
 
 Default value: `'initdb'`
 
-##### `initdb_data_checksums`
+##### <a name="-patroni--initdb_data_checksums"></a>`initdb_data_checksums`
 
 Data type: `Boolean`
 
 Refer to Bootstrap configuration settings `data-checksums` setting
 
-Default value: ``true``
+Default value: `true`
 
-##### `initdb_encoding`
+##### <a name="-patroni--initdb_encoding"></a>`initdb_encoding`
 
 Data type: `String`
 
@@ -152,7 +282,7 @@ Refer to Bootstrap configuration settings `encoding` setting
 
 Default value: `'UTF8'`
 
-##### `initdb_locale`
+##### <a name="-patroni--initdb_locale"></a>`initdb_locale`
 
 Data type: `String`
 
@@ -160,18 +290,22 @@ Refer to Bootstrap configuration settings `locale` setting
 
 Default value: `'en_US.utf8'`
 
-##### `bootstrap_pg_hba`
+##### <a name="-patroni--bootstrap_pg_hba"></a>`bootstrap_pg_hba`
 
 Data type: `Array[String]`
 
 Refer to Bootstrap configuration settings `pg_hba` setting
 
-Default value: `[
+Default value:
+
+```puppet
+[
     'host all all 0.0.0.0/0 md5',
     'host replication rep_user 0.0.0.0/0 md5',
-  ]`
+  ]
+```
 
-##### `bootstrap_users`
+##### <a name="-patroni--bootstrap_users"></a>`bootstrap_users`
 
 Data type: `Hash`
 
@@ -179,23 +313,23 @@ Refer to Bootstrap configuration settings `users` setting
 
 Default value: `{}`
 
-##### `bootstrap_post_bootstrap`
+##### <a name="-patroni--bootstrap_post_bootstrap"></a>`bootstrap_post_bootstrap`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Bootstrap configuration settings `post_bootstrap` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `bootstrap_post_init`
+##### <a name="-patroni--bootstrap_post_init"></a>`bootstrap_post_init`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Bootstrap configuration settings `post_init` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `superuser_username`
+##### <a name="-patroni--superuser_username"></a>`superuser_username`
 
 Data type: `String`
 
@@ -203,7 +337,7 @@ Refer to PostgreSQL configuration settings superuser username
 
 Default value: `'postgres'`
 
-##### `superuser_password`
+##### <a name="-patroni--superuser_password"></a>`superuser_password`
 
 Data type: `String`
 
@@ -211,7 +345,7 @@ Refer to PostgreSQL configuration settings superuser password
 
 Default value: `'changeme'`
 
-##### `replication_username`
+##### <a name="-patroni--replication_username"></a>`replication_username`
 
 Data type: `String`
 
@@ -219,7 +353,7 @@ Refer to PostgreSQL configuration settings replication username
 
 Default value: `'rep_user'`
 
-##### `replication_password`
+##### <a name="-patroni--replication_password"></a>`replication_password`
 
 Data type: `String`
 
@@ -227,47 +361,47 @@ Refer to PostgreSQL configuration settings replication password
 
 Default value: `'changeme'`
 
-##### `callback_on_reload`
+##### <a name="-patroni--callback_on_reload"></a>`callback_on_reload`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings callbacks `on_reload`
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `callback_on_restart`
+##### <a name="-patroni--callback_on_restart"></a>`callback_on_restart`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings callbacks `on_restart`
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `callback_on_role_change`
+##### <a name="-patroni--callback_on_role_change"></a>`callback_on_role_change`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings callbacks `on_role_change`
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `callback_on_start`
+##### <a name="-patroni--callback_on_start"></a>`callback_on_start`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings callbacks `on_start`
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `callback_on_stop`
+##### <a name="-patroni--callback_on_stop"></a>`callback_on_stop`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings callbacks `on_stop`
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `pgsql_connect_address`
+##### <a name="-patroni--pgsql_connect_address"></a>`pgsql_connect_address`
 
 Data type: `String`
 
@@ -275,7 +409,7 @@ Refer to PostgreSQL configuration settings `connect_address` setting
 
 Default value: `"${facts['networking']['fqdn']}:5432"`
 
-##### `pgsql_create_replica_methods`
+##### <a name="-patroni--pgsql_create_replica_methods"></a>`pgsql_create_replica_methods`
 
 Data type: `Array[String]`
 
@@ -283,31 +417,31 @@ Refer to PostgreSQL configuration settings `create_replica_methods` setting
 
 Default value: `['basebackup']`
 
-##### `pgsql_data_dir`
+##### <a name="-patroni--pgsql_data_dir"></a>`pgsql_data_dir`
 
 Data type: `Optional[Stdlib::Unixpath]`
 
 Refer to PostgreSQL configuration settings `data_dir` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `pgsql_config_dir`
+##### <a name="-patroni--pgsql_config_dir"></a>`pgsql_config_dir`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings `config_dir` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `pgsql_bin_dir`
+##### <a name="-patroni--pgsql_bin_dir"></a>`pgsql_bin_dir`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings `bin_dir` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `pgsql_listen`
+##### <a name="-patroni--pgsql_listen"></a>`pgsql_listen`
 
 Data type: `String`
 
@@ -315,15 +449,15 @@ Refer to PostgreSQL configuration settings `listen` setting
 
 Default value: `'0.0.0.0:5432'`
 
-##### `pgsql_use_unix_socket`
+##### <a name="-patroni--pgsql_use_unix_socket"></a>`pgsql_use_unix_socket`
 
 Data type: `Boolean`
 
 Refer to PostgreSQL configuration settings `use_unix_socket` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `pgsql_pgpass_path`
+##### <a name="-patroni--pgsql_pgpass_path"></a>`pgsql_pgpass_path`
 
 Data type: `String`
 
@@ -331,7 +465,7 @@ Refer to PostgreSQL configuration settings `pgpass_path` setting
 
 Default value: `'/tmp/pgpass0'`
 
-##### `pgsql_recovery_conf`
+##### <a name="-patroni--pgsql_recovery_conf"></a>`pgsql_recovery_conf`
 
 Data type: `Hash`
 
@@ -339,15 +473,15 @@ Refer to PostgreSQL configuration settings `recovery_conf` setting
 
 Default value: `{}`
 
-##### `pgsql_custom_conf`
+##### <a name="-patroni--pgsql_custom_conf"></a>`pgsql_custom_conf`
 
 Data type: `Variant[Undef,String]`
 
 Refer to PostgreSQL configuration settings `custom_conf` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `pgsql_parameters`
+##### <a name="-patroni--pgsql_parameters"></a>`pgsql_parameters`
 
 Data type: `Hash`
 
@@ -355,7 +489,7 @@ Refer to PostgreSQL configuration settings `parameters` setting
 
 Default value: `{}`
 
-##### `pgsql_pg_hba`
+##### <a name="-patroni--pgsql_pg_hba"></a>`pgsql_pg_hba`
 
 Data type: `Array[String]`
 
@@ -363,7 +497,7 @@ Refer to PostgreSQL configuration settings `pg_hba` setting
 
 Default value: `[]`
 
-##### `pgsql_pg_ctl_timeout`
+##### <a name="-patroni--pgsql_pg_ctl_timeout"></a>`pgsql_pg_ctl_timeout`
 
 Data type: `Integer`
 
@@ -371,23 +505,23 @@ Refer to PostgreSQL configuration settings `pg_ctl_timeout` setting
 
 Default value: `60`
 
-##### `pgsql_use_pg_rewind`
+##### <a name="-patroni--pgsql_use_pg_rewind"></a>`pgsql_use_pg_rewind`
 
 Data type: `Boolean`
 
 Refer to PostgreSQL configuration settings `use_pg_rewind` setting
 
-Default value: ``true``
+Default value: `true`
 
-##### `pgsql_remove_data_directory_on_rewind_failure`
+##### <a name="-patroni--pgsql_remove_data_directory_on_rewind_failure"></a>`pgsql_remove_data_directory_on_rewind_failure`
 
 Data type: `Boolean`
 
 Refer to PostgreSQL configuration settings `remove_data_directory_on_rewind_failure` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `pgsql_replica_method`
+##### <a name="-patroni--pgsql_replica_method"></a>`pgsql_replica_method`
 
 Data type: `Array[Hash]`
 
@@ -395,15 +529,23 @@ Refer to PostgreSQL configuration settings `replica_method` setting
 
 Default value: `[]`
 
-##### `use_consul`
+##### <a name="-patroni--manage_postgresql_repo"></a>`manage_postgresql_repo`
+
+Data type: `Boolean`
+
+Should the postgresql module manage the package repo
+
+Default value: `true`
+
+##### <a name="-patroni--use_consul"></a>`use_consul`
 
 Data type: `Boolean`
 
 Boolean to use Consul for configuration storage
 
-Default value: ``false``
+Default value: `false`
 
-##### `consul_host`
+##### <a name="-patroni--consul_host"></a>`consul_host`
 
 Data type: `String`
 
@@ -411,15 +553,15 @@ Refer to Consul configuration `host` setting
 
 Default value: `'localhost'`
 
-##### `consul_url`
+##### <a name="-patroni--consul_url"></a>`consul_url`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `url` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_port`
+##### <a name="-patroni--consul_port"></a>`consul_port`
 
 Data type: `Stdlib::Port`
 
@@ -427,7 +569,7 @@ Refer to Consul configuration `port` setting
 
 Default value: `8500`
 
-##### `consul_scheme`
+##### <a name="-patroni--consul_scheme"></a>`consul_scheme`
 
 Data type: `Enum['http','https']`
 
@@ -435,95 +577,95 @@ Refer to Consul configuration `scheme` setting
 
 Default value: `'http'`
 
-##### `consul_token`
+##### <a name="-patroni--consul_token"></a>`consul_token`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `token` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_verify`
+##### <a name="-patroni--consul_verify"></a>`consul_verify`
 
 Data type: `Boolean`
 
 Refer to Consul configuration `verify` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `consul_register_service`
+##### <a name="-patroni--consul_register_service"></a>`consul_register_service`
 
 Data type: `Optional[Boolean]`
 
 Refer to Consul configuration `register_service` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_service_check_interval`
+##### <a name="-patroni--consul_service_check_interval"></a>`consul_service_check_interval`
 
 Data type: `Optional[String]`
 
 Refer to Consul configuration `service_check_interval` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_consistency`
+##### <a name="-patroni--consul_consistency"></a>`consul_consistency`
 
 Data type: `Optional[Enum['default', 'consistent', 'stale']]`
 
 Refer to Consul configuration `consistency` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_cacert`
+##### <a name="-patroni--consul_cacert"></a>`consul_cacert`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `cacert` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_cert`
+##### <a name="-patroni--consul_cert"></a>`consul_cert`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `cert` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_key`
+##### <a name="-patroni--consul_key"></a>`consul_key`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `key` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_dc`
+##### <a name="-patroni--consul_dc"></a>`consul_dc`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `dc` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `consul_checks`
+##### <a name="-patroni--consul_checks"></a>`consul_checks`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Consul configuration `checks` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `use_etcd`
+##### <a name="-patroni--use_etcd"></a>`use_etcd`
 
 Data type: `Boolean`
 
 Boolean to use Etcd for configuration storage
 
-Default value: ``false``
+Default value: `false`
 
-##### `etcd_host`
+##### <a name="-patroni--etcd_host"></a>`etcd_host`
 
 Data type: `String`
 
@@ -531,7 +673,7 @@ Refer to Etcd configuration `host` setting
 
 Default value: `'127.0.0.1:2379'`
 
-##### `etcd_hosts`
+##### <a name="-patroni--etcd_hosts"></a>`etcd_hosts`
 
 Data type: `Array[String]`
 
@@ -539,31 +681,31 @@ Refer to Etcd configuration `hosts` setting
 
 Default value: `[]`
 
-##### `etcd_url`
+##### <a name="-patroni--etcd_url"></a>`etcd_url`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `url` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_proxyurl`
+##### <a name="-patroni--etcd_proxyurl"></a>`etcd_proxyurl`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `proxy` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_srv`
+##### <a name="-patroni--etcd_srv"></a>`etcd_srv`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `srv` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_protocol`
+##### <a name="-patroni--etcd_protocol"></a>`etcd_protocol`
 
 Data type: `Enum['http','https']`
 
@@ -571,55 +713,55 @@ Refer to Etcd configuration `protocol` setting
 
 Default value: `'http'`
 
-##### `etcd_username`
+##### <a name="-patroni--etcd_username"></a>`etcd_username`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `username` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_password`
+##### <a name="-patroni--etcd_password"></a>`etcd_password`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `password` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_cacert`
+##### <a name="-patroni--etcd_cacert"></a>`etcd_cacert`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `cacert` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_cert`
+##### <a name="-patroni--etcd_cert"></a>`etcd_cert`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `cert` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `etcd_key`
+##### <a name="-patroni--etcd_key"></a>`etcd_key`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Etcd configuration `key` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `use_exhibitor`
+##### <a name="-patroni--use_exhibitor"></a>`use_exhibitor`
 
 Data type: `Boolean`
 
 Boolean to use Exhibitor configuration storage
 
-Default value: ``false``
+Default value: `false`
 
-##### `exhibitor_hosts`
+##### <a name="-patroni--exhibitor_hosts"></a>`exhibitor_hosts`
 
 Data type: `Array[String]`
 
@@ -627,7 +769,7 @@ Refer to Exhibitor configuration `hosts` setting
 
 Default value: `[]`
 
-##### `exhibitor_poll_interval`
+##### <a name="-patroni--exhibitor_poll_interval"></a>`exhibitor_poll_interval`
 
 Data type: `Integer`
 
@@ -635,7 +777,7 @@ Refer to Exhibitor configuration `poll_interval` setting
 
 Default value: `10`
 
-##### `exhibitor_port`
+##### <a name="-patroni--exhibitor_port"></a>`exhibitor_port`
 
 Data type: `Integer`
 
@@ -643,15 +785,15 @@ Refer to Exhibitor configuration `port` setting
 
 Default value: `8080`
 
-##### `use_kubernetes`
+##### <a name="-patroni--use_kubernetes"></a>`use_kubernetes`
 
 Data type: `Boolean`
 
 Boolean to use Kubernetes configuration storage
 
-Default value: ``false``
+Default value: `false`
 
-##### `kubernetes_namespace`
+##### <a name="-patroni--kubernetes_namespace"></a>`kubernetes_namespace`
 
 Data type: `String`
 
@@ -659,7 +801,7 @@ Refer to Kubernetes configuration `namespace` setting
 
 Default value: `'default'`
 
-##### `kubernetes_labels`
+##### <a name="-patroni--kubernetes_labels"></a>`kubernetes_labels`
 
 Data type: `Hash`
 
@@ -667,47 +809,55 @@ Refer to Kubernetes configuration `labels` setting
 
 Default value: `{}`
 
-##### `kubernetes_scope_label`
+##### <a name="-patroni--kubernetes_scope_label"></a>`kubernetes_scope_label`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Kubernetes configuration `scope_label` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `kubernetes_role_label`
+##### <a name="-patroni--kubernetes_role_label"></a>`kubernetes_role_label`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Kubernetes configuration `role_label` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `kubernetes_use_endpoints`
+##### <a name="-patroni--kubernetes_use_endpoints"></a>`kubernetes_use_endpoints`
 
 Data type: `Boolean`
 
 Refer to Kubernetes configuration `use_endpoints` setting
 
-Default value: ``false``
+Default value: `false`
 
-##### `kubernetes_pod_ip`
+##### <a name="-patroni--kubernetes_pod_ip"></a>`kubernetes_pod_ip`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Kubernetes configuration `pod_ip` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `kubernetes_ports`
+##### <a name="-patroni--kubernetes_ports"></a>`kubernetes_ports`
 
 Data type: `Variant[Undef,String]`
 
 Refer to Kubernetes configuration `ports` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_connect_address`
+##### <a name="-patroni--restapi_ciphers"></a>`restapi_ciphers`
+
+Data type: `Optional[String]`
+
+Refer to REST API configuration `ciphers` setting
+
+Default value: `undef`
+
+##### <a name="-patroni--restapi_connect_address"></a>`restapi_connect_address`
 
 Data type: `String`
 
@@ -715,7 +865,7 @@ Refer to REST API configuration `connect_address` setting
 
 Default value: `"${facts['networking']['fqdn']}:8008"`
 
-##### `restapi_listen`
+##### <a name="-patroni--restapi_listen"></a>`restapi_listen`
 
 Data type: `String`
 
@@ -723,71 +873,71 @@ Refer to REST API configuration `listen` setting
 
 Default value: `'0.0.0.0:8008'`
 
-##### `restapi_username`
+##### <a name="-patroni--restapi_username"></a>`restapi_username`
 
 Data type: `Variant[Undef,String]`
 
 Refer to REST API configuration `username` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_password`
+##### <a name="-patroni--restapi_password"></a>`restapi_password`
 
 Data type: `Variant[Undef,String]`
 
 Refer to REST API configuration `password` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_certfile`
+##### <a name="-patroni--restapi_certfile"></a>`restapi_certfile`
 
 Data type: `Variant[Undef,String]`
 
 Refer to REST API configuration `certfile` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_keyfile`
+##### <a name="-patroni--restapi_keyfile"></a>`restapi_keyfile`
 
 Data type: `Variant[Undef,String]`
 
 Refer to REST API configuration `keyfile` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_cafile`
+##### <a name="-patroni--restapi_cafile"></a>`restapi_cafile`
 
 Data type: `Optional[String]`
 
 Refer to REST API configuration `cafile` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `restapi_verify_client`
+##### <a name="-patroni--restapi_verify_client"></a>`restapi_verify_client`
 
 Data type: `Optional[Enum['none','optional','required']]`
 
 Refer to REST API configuration `verify_client` setting
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `use_zookeeper`
+##### <a name="-patroni--use_zookeeper"></a>`use_zookeeper`
 
 Data type: `Boolean`
 
 Boolean to enable Zookeeper configuration storage
 
-Default value: ``false``
+Default value: `false`
 
-##### `zookeeper_hosts`
+##### <a name="-patroni--zookeeper_hosts"></a>`zookeeper_hosts`
 
-Data type: `Array[String]`
+Data type: `Array[String[1]]`
 
 Refer to Zookeeper configuration `hosts` setting
 
 Default value: `[]`
 
-##### `watchdog_mode`
+##### <a name="-patroni--watchdog_mode"></a>`watchdog_mode`
 
 Data type: `Enum['off','automatic','required']`
 
@@ -795,15 +945,15 @@ Refer to Watchdog configuration `mode` setting
 
 Default value: `'automatic'`
 
-##### `watchdog_device`
+##### <a name="-patroni--watchdog_device"></a>`watchdog_device`
 
-Data type: `String`
+Data type: `Stdlib::Absolutepath`
 
 Refer to Watchdog configuration `device` setting
 
 Default value: `'/dev/watchdog'`
 
-##### `watchdog_safety_margin`
+##### <a name="-patroni--watchdog_safety_margin"></a>`watchdog_safety_margin`
 
 Data type: `Integer`
 
@@ -811,55 +961,55 @@ Refer to Watchdog configuration `safety_margin` setting
 
 Default value: `5`
 
-##### `manage_postgresql`
+##### <a name="-patroni--manage_postgresql"></a>`manage_postgresql`
 
 Data type: `Boolean`
 
 Boolean to determine if postgresql is managed
 
-Default value: ``true``
+Default value: `true`
 
-##### `postgresql_version`
+##### <a name="-patroni--postgresql_version"></a>`postgresql_version`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 Version of postgresql passed to postgresql::globals class
 
-Default value: ``undef``
+Default value: `undef`
 
-##### `package_name`
+##### <a name="-patroni--package_name"></a>`package_name`
 
-Data type: `String`
+Data type: `String[1]`
 
 Patroni package name, only used when `install_method` is `package`
 
 Default value: `'patroni'`
 
-##### `version`
+##### <a name="-patroni--version"></a>`version`
 
-Data type: `String`
+Data type: `String[1]`
 
 Version of Patroni to install
 
 Default value: `'present'`
 
-##### `install_dependencies`
+##### <a name="-patroni--install_dependencies"></a>`install_dependencies`
 
-Data type: `Array`
+Data type: `Array[String[1]]`
 
 Install dependencies, only used when `install_method` is `pip`
 
 Default value: `[]`
 
-##### `manage_python`
+##### <a name="-patroni--manage_python"></a>`manage_python`
 
 Data type: `Boolean`
 
 Manage Python class, only used when `install_method` is `pip`
 
-Default value: ``true``
+Default value: `true`
 
-##### `install_method`
+##### <a name="-patroni--install_method"></a>`install_method`
 
 Data type: `Enum['package','pip']`
 
@@ -867,7 +1017,7 @@ Install method
 
 Default value: `'pip'`
 
-##### `install_dir`
+##### <a name="-patroni--install_dir"></a>`install_dir`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -875,77 +1025,197 @@ Install directory, only used when `install_method` is `pip`
 
 Default value: `'/opt/app/patroni'`
 
-##### `python_class_version`
+##### <a name="-patroni--python_class_version"></a>`python_class_version`
 
-Data type: `String`
+Data type: `String[1]`
 
 The  version of Python to pass to Python class
 Only used when `install_method` is `pip`
 
 Default value: `'36'`
 
-##### `python_venv_version`
+##### <a name="-patroni--python_venv_version"></a>`python_venv_version`
 
-Data type: `String`
+Data type: `String[1]`
 
 The  version of Python to pass to Python virtualenv defined type
 Only used when `install_method` is `pip`
 
 Default value: `'3.6'`
 
-##### `config_path`
+##### <a name="-patroni--manage_venv_package"></a>`manage_venv_package`
 
-Data type: `String`
+Data type: `Boolean`
+
+Whether to manage the Python venv package
+
+Default value: `true`
+
+##### <a name="-patroni--config_path"></a>`config_path`
+
+Data type: `Stdlib::Absolutepath`
 
 Path to Patroni configuration file
 
 Default value: `'/opt/app/patroni/etc/postgresql.yml'`
 
-##### `config_owner`
+##### <a name="-patroni--config_owner"></a>`config_owner`
 
-Data type: `String`
+Data type: `String[1]`
 
 Patroni configuration file owner
 
 Default value: `'postgres'`
 
-##### `config_group`
+##### <a name="-patroni--config_group"></a>`config_group`
 
-Data type: `String`
+Data type: `String[1]`
 
 Patroni configuration file group
 
 Default value: `'postgres'`
 
-##### `config_mode`
+##### <a name="-patroni--config_mode"></a>`config_mode`
 
-Data type: `String`
+Data type: `Stdlib::Filemode`
 
 Patroni configuration file mode
 
 Default value: `'0600'`
 
-##### `service_name`
+##### <a name="-patroni--service_name"></a>`service_name`
 
-Data type: `String`
+Data type: `String[1]`
 
 Name of Patroni service
 
 Default value: `'patroni'`
 
-##### `service_ensure`
+##### <a name="-patroni--service_ensure"></a>`service_ensure`
 
-Data type: `String`
+Data type: `Enum['running', 'stopped']`
 
 Patroni service ensure property
 
 Default value: `'running'`
 
-##### `service_enable`
+##### <a name="-patroni--service_enable"></a>`service_enable`
 
 Data type: `Boolean`
 
 Patroni service enable property
 
-Default value: ``true``
+Default value: `true`
+
+##### <a name="-patroni--custom_pip_provider"></a>`custom_pip_provider`
+
+Data type: `Optional[String[1]]`
+
+Use custom pip path when installing pip packages
+
+Default value: `undef`
+
+##### <a name="-patroni--is_standby"></a>`is_standby`
+
+Data type: `Boolean`
+
+Boolean to use Standby cluster
+
+Default value: `false`
+
+##### <a name="-patroni--standby_cluster_host"></a>`standby_cluster_host`
+
+Data type: `String`
+
+Refer to Standby configuration `host` setting
+
+Default value: `'127.0.0.1'`
+
+##### <a name="-patroni--standby_cluster_port"></a>`standby_cluster_port`
+
+Data type: `Stdlib::Port`
+
+Refer to Standby configuration `port` setting
+
+Default value: `5432`
+
+##### <a name="-patroni--standby_cluster_primary_slot_name"></a>`standby_cluster_primary_slot_name`
+
+Data type: `String[1]`
+
+Refer to Standby configuration `slot` setting
+
+Default value: `'patroni'`
+
+## Resource types
+
+### <a name="patroni_dcs_config"></a>`patroni_dcs_config`
+
+Manages Patroni DCS configuration options
+
+#### Examples
+
+##### Set PostgreSQL max connections
+
+```puppet
+patroni_dcs_config { 'postgresql.params.max_connections':
+  value => '200',
+}
+```
+
+#### Properties
+
+The following properties are available in the `patroni_dcs_config` type.
+
+##### `value`
+
+The value to assign the DCS configuration
+
+#### Parameters
+
+The following parameters are available in the `patroni_dcs_config` type.
+
+* [`name`](#-patroni_dcs_config--name)
+* [`provider`](#-patroni_dcs_config--provider)
+
+##### <a name="-patroni_dcs_config--name"></a>`name`
+
+namevar
+
+The DCS configuration option name
+
+##### <a name="-patroni_dcs_config--provider"></a>`provider`
+
+The specific backend to use for this `patroni_dcs_config` resource. You will seldom need to specify this --- Puppet will
+usually discover the appropriate provider for your platform.
+
+### <a name="patronictl_config"></a>`patronictl_config`
+
+**NOTE** This is a private type not intended to be used directly.
+
+#### Parameters
+
+The following parameters are available in the `patronictl_config` type.
+
+* [`config`](#-patronictl_config--config)
+* [`name`](#-patronictl_config--name)
+* [`path`](#-patronictl_config--path)
+
+##### <a name="-patronictl_config--config"></a>`config`
+
+patronictl config
+
+Default value: `/opt/app/patroni/etc/postgresql.yml`
+
+##### <a name="-patronictl_config--name"></a>`name`
+
+namevar
+
+The name of the resource.
+
+##### <a name="-patronictl_config--path"></a>`path`
+
+patronictl path
+
+Default value: `/opt/app/patroni/bin/patronictl`
 

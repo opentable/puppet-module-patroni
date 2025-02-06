@@ -8,21 +8,21 @@ describe 'patroni' do
     # same tests for OracleLinux and RedHat.
     supported_os: [
       {
-        'operatingsystem'        => 'CentOS',
-        'operatingsystemrelease' => ['7', '8'],
+        'operatingsystem'        => 'RedHat',
+        'operatingsystemrelease' => ['8', '9'],
       },
       {
         'operatingsystem'        => 'Debian',
-        'operatingsystemrelease' => ['9', '10'],
+        'operatingsystemrelease' => ['11'],
       },
       {
         'operatingsystem'        => 'Ubuntu',
-        'operatingsystemrelease' => ['18.04'],
+        'operatingsystemrelease' => ['20.04', '22.04'],
       },
     ],
   }
 
-  on_supported_os(test_on).each do |os, os_facts|
+  on_supported_os(test_on).sort.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }
       let(:node) { 'localhost' }
@@ -35,7 +35,7 @@ describe 'patroni' do
         is_expected.to contain_class('postgresql::globals').with(
           encoding: 'UTF-8',
           locale: 'en_US.UTF-8',
-          manage_package_repo: 'true',
+          manage_package_repo: platform_data(platform, :manage_postgresql_repo),
           version: platform_data(platform, :postgresql_version),
         )
       end
@@ -43,9 +43,23 @@ describe 'patroni' do
       it do
         is_expected.to contain_package('patroni-postgresql-package').with(
           ensure: 'present',
-          require: 'Class[Postgresql::Repo]',
+          require: platform_data(platform, :postgres_repo_require),
           before: 'Service[patroni]',
         )
+      end
+      it do
+        is_expected.to contain_package('patroni-postgresql-devel-package').with(
+          ensure: 'present',
+          require: platform_data(platform, :postgres_repo_require),
+          before: ['Service[patroni]', 'Python::Pip[psycopg2]'],
+        )
+      end
+      it do
+        if platform_data(platform, :pg_config_link)
+          is_expected.to contain_file('/usr/bin/pg_config').with_ensure('link')
+        else
+          is_expected.not_to contain_file('/usr/bin/pg_config')
+        end
       end
       it do
         is_expected.to contain_exec('patroni-clear-datadir').with(
@@ -61,7 +75,6 @@ describe 'patroni' do
         is_expected.to contain_class('python').with(
           version: platform_data(platform, :python_class_version),
           dev: 'present',
-          virtualenv: 'present',
         )
       end
       it 'installs dependencies' do
@@ -76,29 +89,14 @@ describe 'patroni' do
         )
       end
 
-      case os_facts[:os]['family']
-      when 'RedHat'
-        it do
-          is_expected.to contain_python__virtualenv('patroni').with(
-            version: platform_data(platform, :python_venv_version),
-            venv_dir: '/opt/app/patroni',
-            virtualenv: 'virtualenv-3',
-            systempkgs: 'true',
-            distribute: 'false',
-            environment: ['PIP_PREFIX=/opt/app/patroni'],
-            require: 'Exec[patroni-mkdir-install_dir]',
-          )
-        end
-      when 'Debian'
-        it do
-          is_expected.to contain_python__pyvenv('patroni').with(
-            version: platform_data(platform, :python_venv_version),
-            venv_dir: '/opt/app/patroni',
-            systempkgs: 'true',
-            environment: ['PIP_PREFIX=/opt/app/patroni'],
-            require: 'Exec[patroni-mkdir-install_dir]',
-          )
-        end
+      it do
+        is_expected.to contain_python__pyvenv('patroni').with(
+          version: platform_data(platform, :python_venv_version),
+          venv_dir: '/opt/app/patroni',
+          systempkgs: 'true',
+          environment: ['PIP_PREFIX=/opt/app/patroni'],
+          require: 'Exec[patroni-mkdir-install_dir]',
+        )
       end
 
       it do
@@ -127,6 +125,7 @@ describe 'patroni' do
           owner: 'postgres',
           group: 'postgres',
           mode: '0755',
+          require: 'Python::Pyvenv[patroni]',
         )
       end
 
@@ -279,6 +278,30 @@ describe 'patroni' do
         )
       end
 
+      it do
+        is_expected.to contain_patronictl_config('puppet').with(
+          path: '/opt/app/patroni/bin/patronictl',
+          config: platform_data(platform, :config_path),
+        )
+      end
+
+      context 'is_standby => true' do
+        let(:params) { { 'scope' => 'testscope', 'is_standby' => true } }
+
+        it 'has valid config' do
+          content = catalogue.resource('file', 'patroni_config').send(:parameters)[:content]
+          config = YAML.safe_load(content)
+          expected = {
+            'standby_cluster' => {
+              'host' => '127.0.0.1',
+              'port' => 5432,
+              'primary_slot_name' => 'patroni',
+            },
+          }
+          expect(config['bootstrap']['dcs']).to include(expected)
+        end
+      end
+
       context 'use_etcd => true' do
         let(:params) { { 'scope' => 'testscope', 'use_etcd' => true } }
 
@@ -358,7 +381,6 @@ describe 'patroni' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.not_to contain_class('python') }
         it { is_expected.not_to contain_exec('patroni-mkdir-install_dir') }
-        it { is_expected.not_to contain_python__virtualenv('patroni') }
         it { is_expected.not_to contain_python__pyenv('patroni') }
         it { is_expected.not_to contain_python__pip('patroni') }
 
@@ -383,21 +405,11 @@ describe 'patroni' do
             creates: '/usr/local/patroni',
           )
         end
-        case os_facts[:os]['family']
-        when 'RedHat'
-          it do
-            is_expected.to contain_python__virtualenv('patroni').with(
-              venv_dir: '/usr/local/patroni',
-              environment: ['PIP_PREFIX=/usr/local/patroni'],
-            )
-          end
-        when 'Debian'
-          it do
-            is_expected.to contain_python__pyvenv('patroni').with(
-              venv_dir: '/usr/local/patroni',
-              environment: ['PIP_PREFIX=/usr/local/patroni'],
-            )
-          end
+        it do
+          is_expected.to contain_python__pyvenv('patroni').with(
+            venv_dir: '/usr/local/patroni',
+            environment: ['PIP_PREFIX=/usr/local/patroni'],
+          )
         end
         it do
           is_expected.to contain_python__pip('patroni').with(
@@ -414,6 +426,19 @@ describe 'patroni' do
         it 'has valid systemd unit' do
           content = catalogue.resource('systemd::unit_file', 'patroni.service').send(:parameters)[:content]
           expect(content).to include('ExecStart=/usr/local/patroni/bin/patroni ${PATRONI_CONFIG_LOCATION}')
+        end
+      end
+
+      context 'custom_pip_provider => /usr/bin/pip3' do
+        let(:params) { { 'scope' => 'testscope', 'custom_pip_provider' => '/usr/bin/pip3' } }
+
+        it { is_expected.to compile.with_all_deps }
+
+        it do
+          is_expected.to contain_python__pip('patroni').with(
+            pip_provider: '/usr/bin/pip3',
+            virtualenv: 'system',
+          )
         end
       end
     end
