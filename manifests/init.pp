@@ -52,6 +52,14 @@
 #   Refer to PostgreSQL configuration settings replication username
 # @param replication_password
 #   Refer to PostgreSQL configuration settings replication password
+# @param replication_sslmode
+#   Refer to PostgreSQL replication connection `sslmode` setting
+# @param replication_sslrootcert
+#   Refer to PostgreSQL replication connection `sslrootcert` setting
+# @param replication_sslcert
+#   Refer to PostgreSQL replication connection `sslcert` setting
+# @param replication_sslkey
+#   Refer to PostgreSQL replication connection `sslkey` setting
 # @param callback_on_reload
 #   Refer to PostgreSQL configuration settings callbacks `on_reload`
 # @param callback_on_restart
@@ -290,6 +298,10 @@ class patroni (
   String $superuser_password = 'changeme',
   String $replication_username = 'rep_user',
   String $replication_password = 'changeme',
+  Optional[Enum['verify-full']] $replication_sslmode = undef,
+  Optional[Stdlib::Unixpath] $replication_sslrootcert = undef,
+  Optional[Stdlib::Unixpath] $replication_sslcert = undef,
+  Optional[Stdlib::Unixpath] $replication_sslkey = undef,
   Variant[Undef,String] $callback_on_reload = undef,
   Variant[Undef,String] $callback_on_restart = undef,
   Variant[Undef,String] $callback_on_role_change = undef,
@@ -405,6 +417,14 @@ class patroni (
   Boolean $service_enable = true,
   Optional[String[1]] $custom_pip_provider = undef,
 ) {
+  if $replication_sslmode != undef {
+    if $replication_sslrootcert == undef or $replication_sslcert == undef or $replication_sslkey == undef {
+      fail('replication_sslmode, replication_sslrootcert, replication_sslcert, and replication_sslkey must be set together')
+    }
+  } elsif $replication_sslrootcert != undef or $replication_sslcert != undef or $replication_sslkey != undef {
+    fail('replication_sslmode, replication_sslrootcert, replication_sslcert, and replication_sslkey must be set together')
+  }
+
   if $manage_postgresql {
     class { 'postgresql::globals':
       encoding            => 'UTF-8',

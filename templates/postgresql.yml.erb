@@ -89,6 +89,18 @@ postgresql:
     replication:
       username: <%= @replication_username %>
       password: '<%= @replication_password %>'
+<% if @replication_sslmode != nil -%>
+      sslmode: <%= @replication_sslmode %>
+<% end -%>
+<% if @replication_sslrootcert != nil -%>
+      sslrootcert: <%= @replication_sslrootcert.inspect %>
+<% end -%>
+<% if @replication_sslcert != nil -%>
+      sslcert: <%= @replication_sslcert.inspect %>
+<% end -%>
+<% if @replication_sslkey != nil -%>
+      sslkey: <%= @replication_sslkey.inspect %>
+<% end -%>
 <% unless @callback_on_reload == nil && @callback_on_restart == nil && @callback_on_role_change == nil && @callback_on_start == nil && @callback_on_stop == nil -%>
   callbacks:
 <% if @callback_on_reload != nil -%>
