@@ -78,6 +78,7 @@ postgresql:
   config_dir: <%= @pgsql_config_dir %>
 <% end -%>
   use_unix_socket: <%= @pgsql_use_unix_socket ? 'true' : 'false' %>
+  use_unix_socket_repl: <%= @pgsql_use_unix_socket_repl ? 'true' : 'false' %>
   pgpass: <%= @pgsql_pgpass_path %>
   pg_ctl_timeout: <%= @pgsql_pg_ctl_timeout %>
   use_pg_rewind: <%= @pgsql_use_pg_rewind ? 'true' : 'false' %>

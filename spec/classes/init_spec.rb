@@ -207,6 +207,7 @@ describe 'patroni' do
             'data_dir'        => platform_data(platform, :data_dir),
             'bin_dir'         => platform_data(platform, :bin_dir),
             'use_unix_socket' => false,
+            'use_unix_socket_repl' => false,
             'pgpass'          => '/tmp/pgpass0',
             'pg_ctl_timeout'  => 60,
             'use_pg_rewind'   => true,
@@ -310,6 +311,7 @@ describe 'patroni' do
             'replication_sslrootcert' => '/etc/step/certs/root CA #1.crt',
             'replication_sslcert' => '/etc/step/certs/cluster certificate.crt',
             'replication_sslkey' => '/etc/step/certs/cluster key.key',
+            'pgsql_use_unix_socket_repl' => true,
           }
         end
 
@@ -323,6 +325,7 @@ describe 'patroni' do
             'sslcert' => '/etc/step/certs/cluster certificate.crt',
             'sslkey' => '/etc/step/certs/cluster key.key',
           )
+          expect(config.dig('postgresql', 'use_unix_socket_repl')).to be(true)
         end
       end
 

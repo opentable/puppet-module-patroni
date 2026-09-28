@@ -84,6 +84,8 @@
 #   Refer to PostgreSQL configuration settings `listen` setting
 # @param pgsql_use_unix_socket
 #   Refer to PostgreSQL configuration settings `use_unix_socket` setting
+# @param pgsql_use_unix_socket_repl
+#   Refer to PostgreSQL configuration settings `use_unix_socket_repl` setting
 # @param pgsql_pgpass_path
 #   Refer to PostgreSQL configuration settings `pgpass_path` setting
 # @param pgsql_recovery_conf
@@ -314,6 +316,7 @@ class patroni (
   Variant[Undef,String] $pgsql_bin_dir = undef,
   String $pgsql_listen = '0.0.0.0:5432',
   Boolean $pgsql_use_unix_socket = false,
+  Boolean $pgsql_use_unix_socket_repl = false,
   String $pgsql_pgpass_path = '/tmp/pgpass0',
   Hash $pgsql_recovery_conf = {},
   Variant[Undef,String]  $pgsql_custom_conf = undef,
