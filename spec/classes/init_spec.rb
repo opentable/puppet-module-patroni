@@ -207,7 +207,6 @@ describe 'patroni' do
             'data_dir'        => platform_data(platform, :data_dir),
             'bin_dir'         => platform_data(platform, :bin_dir),
             'use_unix_socket' => false,
-            'use_unix_socket_repl' => false,
             'pgpass'          => '/tmp/pgpass0',
             'pg_ctl_timeout'  => 60,
             'use_pg_rewind'   => true,
@@ -326,6 +325,17 @@ describe 'patroni' do
             'sslkey' => '/etc/step/certs/cluster key.key',
           )
           expect(config.dig('postgresql', 'use_unix_socket_repl')).to be(true)
+        end
+      end
+
+      context 'without a replication Unix socket setting' do
+        let(:params) { { 'scope' => 'testscope' } }
+
+        it 'preserves the existing Patroni YAML' do
+          content = catalogue.resource('file', 'patroni_config').send(:parameters)[:content]
+          config = YAML.safe_load(content)
+
+          expect(config.fetch('postgresql')).not_to have_key('use_unix_socket_repl')
         end
       end
 

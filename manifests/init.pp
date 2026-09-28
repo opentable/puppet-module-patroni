@@ -316,7 +316,7 @@ class patroni (
   Variant[Undef,String] $pgsql_bin_dir = undef,
   String $pgsql_listen = '0.0.0.0:5432',
   Boolean $pgsql_use_unix_socket = false,
-  Boolean $pgsql_use_unix_socket_repl = false,
+  Optional[Boolean] $pgsql_use_unix_socket_repl = undef,
   String $pgsql_pgpass_path = '/tmp/pgpass0',
   Hash $pgsql_recovery_conf = {},
   Variant[Undef,String]  $pgsql_custom_conf = undef,
