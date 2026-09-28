@@ -248,8 +248,6 @@
 #   Patroni service ensure property
 # @param service_enable
 #   Patroni service enable property
-# @param config_change_action
-#   Action to take when the Patroni configuration file changes
 # @param custom_pip_provider
 #   Use custom pip path when installing pip packages
 # @param is_standby
@@ -417,7 +415,6 @@ class patroni (
   String[1] $service_name = 'patroni',
   Enum['running', 'stopped'] $service_ensure = 'running',
   Boolean $service_enable = true,
-  Enum['reload', 'restart'] $config_change_action = 'restart',
   Optional[String[1]] $custom_pip_provider = undef,
 ) {
   if $replication_sslmode != undef {
@@ -565,17 +562,6 @@ class patroni (
     }
   }
 
-  exec { 'reload_patroni_config':
-    command     => "/bin/systemctl kill --kill-whom=main --signal=HUP ${service_name}",
-    refreshonly => true,
-    require     => Service['patroni'],
-  }
-
-  $config_notify = $config_change_action ? {
-    'reload' => Exec['reload_patroni_config'],
-    default  => Service['patroni'],
-  }
-
   file { 'patroni_config':
     ensure  => 'file',
     path    => $config_path,
@@ -583,7 +569,7 @@ class patroni (
     group   => $config_group,
     mode    => $config_mode,
     content => template('patroni/postgresql.yml.erb'),
-    notify  => $config_notify,
+    notify  => Service['patroni'],
   }
 
   if $install_method == 'pip' {
