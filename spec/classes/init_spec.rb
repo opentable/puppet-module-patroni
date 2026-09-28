@@ -326,6 +326,28 @@ describe 'patroni' do
         end
       end
 
+      context 'with reload on configuration change' do
+        let(:params) do
+          {
+            'scope' => 'testscope',
+            'config_change_action' => 'reload',
+          }
+        end
+
+        it do
+          is_expected.to contain_file('patroni_config')
+            .that_notifies('Exec[reload_patroni_config]')
+        end
+
+        it do
+          is_expected.to contain_exec('reload_patroni_config').with(
+            command: '/bin/systemctl kill --kill-whom=main --signal=HUP patroni',
+            refreshonly: 'true',
+            require: 'Service[patroni]',
+          )
+        end
+      end
+
       context 'with incomplete replication TLS settings' do
         let(:params) { { 'scope' => 'testscope', 'replication_sslmode' => 'verify-full' } }
 
