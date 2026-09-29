@@ -302,6 +302,49 @@ describe 'patroni' do
         end
       end
 
+      context 'with replication TLS settings' do
+        let(:params) do
+          {
+            'scope' => 'testscope',
+            'replication_sslmode' => 'verify-full',
+            'replication_sslrootcert' => '/etc/step/certs/root CA #1.crt',
+            'replication_sslcert' => '/etc/step/certs/cluster certificate.crt',
+            'replication_sslkey' => '/etc/step/certs/cluster key.key',
+            'pgsql_use_unix_socket_repl' => true,
+          }
+        end
+
+        it 'renders libpq TLS options for replication connections' do
+          content = catalogue.resource('file', 'patroni_config').send(:parameters)[:content]
+          config = YAML.safe_load(content)
+
+          expect(config.dig('postgresql', 'authentication', 'replication')).to include(
+            'sslmode' => 'verify-full',
+            'sslrootcert' => '/etc/step/certs/root CA #1.crt',
+            'sslcert' => '/etc/step/certs/cluster certificate.crt',
+            'sslkey' => '/etc/step/certs/cluster key.key',
+          )
+          expect(config.dig('postgresql', 'use_unix_socket_repl')).to be(true)
+        end
+      end
+
+      context 'without a replication Unix socket setting' do
+        let(:params) { { 'scope' => 'testscope' } }
+
+        it 'preserves the existing Patroni YAML' do
+          content = catalogue.resource('file', 'patroni_config').send(:parameters)[:content]
+          config = YAML.safe_load(content)
+
+          expect(config.fetch('postgresql')).not_to have_key('use_unix_socket_repl')
+        end
+      end
+
+      context 'with incomplete replication TLS settings' do
+        let(:params) { { 'scope' => 'testscope', 'replication_sslmode' => 'verify-full' } }
+
+        it { is_expected.to compile.and_raise_error(%r{must be set together}) }
+      end
+
       context 'use_etcd => true' do
         let(:params) { { 'scope' => 'testscope', 'use_etcd' => true } }
 

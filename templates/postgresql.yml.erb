@@ -78,6 +78,9 @@ postgresql:
   config_dir: <%= @pgsql_config_dir %>
 <% end -%>
   use_unix_socket: <%= @pgsql_use_unix_socket ? 'true' : 'false' %>
+<% unless @pgsql_use_unix_socket_repl.nil? -%>
+  use_unix_socket_repl: <%= @pgsql_use_unix_socket_repl ? 'true' : 'false' %>
+<% end -%>
   pgpass: <%= @pgsql_pgpass_path %>
   pg_ctl_timeout: <%= @pgsql_pg_ctl_timeout %>
   use_pg_rewind: <%= @pgsql_use_pg_rewind ? 'true' : 'false' %>
@@ -89,6 +92,18 @@ postgresql:
     replication:
       username: <%= @replication_username %>
       password: '<%= @replication_password %>'
+<% if @replication_sslmode != nil -%>
+      sslmode: <%= @replication_sslmode %>
+<% end -%>
+<% if @replication_sslrootcert != nil -%>
+      sslrootcert: <%= @replication_sslrootcert.inspect %>
+<% end -%>
+<% if @replication_sslcert != nil -%>
+      sslcert: <%= @replication_sslcert.inspect %>
+<% end -%>
+<% if @replication_sslkey != nil -%>
+      sslkey: <%= @replication_sslkey.inspect %>
+<% end -%>
 <% unless @callback_on_reload == nil && @callback_on_restart == nil && @callback_on_role_change == nil && @callback_on_start == nil && @callback_on_stop == nil -%>
   callbacks:
 <% if @callback_on_reload != nil -%>

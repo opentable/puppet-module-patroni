@@ -52,6 +52,14 @@
 #   Refer to PostgreSQL configuration settings replication username
 # @param replication_password
 #   Refer to PostgreSQL configuration settings replication password
+# @param replication_sslmode
+#   Refer to PostgreSQL replication connection `sslmode` setting
+# @param replication_sslrootcert
+#   Refer to PostgreSQL replication connection `sslrootcert` setting
+# @param replication_sslcert
+#   Refer to PostgreSQL replication connection `sslcert` setting
+# @param replication_sslkey
+#   Refer to PostgreSQL replication connection `sslkey` setting
 # @param callback_on_reload
 #   Refer to PostgreSQL configuration settings callbacks `on_reload`
 # @param callback_on_restart
@@ -76,6 +84,8 @@
 #   Refer to PostgreSQL configuration settings `listen` setting
 # @param pgsql_use_unix_socket
 #   Refer to PostgreSQL configuration settings `use_unix_socket` setting
+# @param pgsql_use_unix_socket_repl
+#   Refer to PostgreSQL configuration settings `use_unix_socket_repl` setting
 # @param pgsql_pgpass_path
 #   Refer to PostgreSQL configuration settings `pgpass_path` setting
 # @param pgsql_recovery_conf
@@ -290,6 +300,10 @@ class patroni (
   String $superuser_password = 'changeme',
   String $replication_username = 'rep_user',
   String $replication_password = 'changeme',
+  Optional[Enum['verify-full']] $replication_sslmode = undef,
+  Optional[Stdlib::Unixpath] $replication_sslrootcert = undef,
+  Optional[Stdlib::Unixpath] $replication_sslcert = undef,
+  Optional[Stdlib::Unixpath] $replication_sslkey = undef,
   Variant[Undef,String] $callback_on_reload = undef,
   Variant[Undef,String] $callback_on_restart = undef,
   Variant[Undef,String] $callback_on_role_change = undef,
@@ -302,6 +316,7 @@ class patroni (
   Variant[Undef,String] $pgsql_bin_dir = undef,
   String $pgsql_listen = '0.0.0.0:5432',
   Boolean $pgsql_use_unix_socket = false,
+  Optional[Boolean] $pgsql_use_unix_socket_repl = undef,
   String $pgsql_pgpass_path = '/tmp/pgpass0',
   Hash $pgsql_recovery_conf = {},
   Variant[Undef,String]  $pgsql_custom_conf = undef,
@@ -405,6 +420,14 @@ class patroni (
   Boolean $service_enable = true,
   Optional[String[1]] $custom_pip_provider = undef,
 ) {
+  if $replication_sslmode != undef {
+    if $replication_sslrootcert == undef or $replication_sslcert == undef or $replication_sslkey == undef {
+      fail('replication_sslmode, replication_sslrootcert, replication_sslcert, and replication_sslkey must be set together')
+    }
+  } elsif $replication_sslrootcert != undef or $replication_sslcert != undef or $replication_sslkey != undef {
+    fail('replication_sslmode, replication_sslrootcert, replication_sslcert, and replication_sslkey must be set together')
+  }
+
   if $manage_postgresql {
     class { 'postgresql::globals':
       encoding            => 'UTF-8',
